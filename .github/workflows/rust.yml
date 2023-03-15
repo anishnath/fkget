@@ -13,9 +13,9 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            file: forest-${{ github.ref_name }}-linux-amd64.zip
+            file: fkget-${{ github.ref_name }}-linux-amd64.zip
           - os: macos-latest
-            file: forest-${{ github.ref_name }}-macos-amd64.zip
+            file: fkget-${{ github.ref_name }}-macos-amd64.zip
     steps:
       - name: Checkout Sources
         uses: actions/checkout@v3
@@ -42,7 +42,7 @@ jobs:
           mkdir -p fkget-${{ github.ref_name }}
           cp -v target/release/fkget  fkget-${{ github.ref_name }}
           sha256sum fkget-${{ github.ref_name }}/fkget > fkget-${{ github.ref_name }}/fkget.sha256
-          zip -r ${{ matrix.file }} forest-${{ github.ref_name }}
+          zip -r ${{ matrix.file }} fkget-${{ github.ref_name }}
       - name: Upload Binary
         uses: svenstaro/upload-release-action@v2
         with:
