@@ -1,24 +1,22 @@
 use std::fs::File;
-use std::io::{stdout, Write, Read};
+use std::io::{stdout, Write};
 use std::time::{Instant};
 use reqwest::Url;
 use std::error::Error;
 use std::env;
+use tokio::io::{AsyncWriteExt, AsyncReadExt};
 
-pub fn download_file(url: &Url) -> Result<(), Box<dyn std::error::Error>> {
-    let mut response = reqwest::blocking::get(url.as_ref())?;
+pub async fn download_file(url: &Url) -> Result<(), Box<dyn std::error::Error>> {
+    let mut response = reqwest::get(url.as_ref()).await?;
     let start_time = Instant::now();
     let file_name = url.path_segments().and_then(|segments| segments.last()).unwrap_or("file.bin");
     let mut file = File::create(file_name)?;
     let mut downloaded_size = 0;
-    let mut buf = [0; 8192];
-    loop {
-        let len = response.read(&mut buf)?;
-        if len == 0 {
-            break;
-        }
+    //let mut _buf = [0; 8192];
+    while let Some(chunk) = response.chunk().await? {
+        let len = chunk.len();
         downloaded_size += len;
-        file.write_all(&buf[..len])?;
+        file.write_all(&chunk);
         let elapsed_time = start_time.elapsed();
         let elapsed_seconds = elapsed_time.as_secs_f64();
         let download_speed = downloaded_size as f64 / elapsed_seconds / 1_000_000.0;
@@ -42,23 +40,49 @@ pub fn download_file(url: &Url) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let url = match env::args().nth(1) {
         Some(url_str) => Url::parse(&url_str)?,
         None => Url::parse("https://speed.hetzner.de/100MB.bin")?,
     };
-    download_file(&url)?;
+    download_file(&url).await?;
     Ok(())
 }
+
+
+// fn main() -> Result<(), Box<dyn Error>> {
+//     let url = match env::args().nth(1) {
+//         Some(url_str) => Url::parse(&url_str)?,
+//         None => Url::parse("https://speed.hetzner.de/100MB.bin")?,
+//     };
+//     download_file(&url)?;
+//     Ok(())
+// }
+
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
+//
+//     #[test]
+//     fn test_download_file() {
+//         let url = Url::parse("https://speed.hetzner.de/100MB.bin").unwrap();
+//         download_file(&url).unwrap();
+//         let file = File::open("100MB.bin").unwrap();
+//         let file_size = file.metadata().unwrap().len();
+//         assert_eq!(file_size, 104_857_600);
+//         std::fs::remove_file("100MB.bin").unwrap();
+//     }
+// }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_download_file() {
+    #[tokio::test]
+    async fn test_download_file() {
         let url = Url::parse("https://speed.hetzner.de/100MB.bin").unwrap();
-        download_file(&url).unwrap();
+        download_file(&url).await.unwrap();
         let file = File::open("100MB.bin").unwrap();
         let file_size = file.metadata().unwrap().len();
         assert_eq!(file_size, 104_857_600);
