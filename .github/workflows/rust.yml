@@ -30,7 +30,6 @@ jobs:
         if: contains(matrix.os, 'macos')
         run: |
           brew install --verbose coreutils protobuf
-          protoc --version
       - name: Rust Cache
         uses: Swatinem/rust-cache@v2
         timeout-minutes: 5
