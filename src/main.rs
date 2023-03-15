@@ -1,15 +1,18 @@
+use reqwest::Url;
+use std::env;
+use std::error::Error;
 use std::fs::File;
 use std::io::{stdout, Write};
-use std::time::{Instant};
-use reqwest::Url;
-use std::error::Error;
-use std::env;
-use tokio::io::{AsyncWriteExt, AsyncReadExt};
+use std::time::Instant;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 pub async fn download_file(url: &Url) -> Result<(), Box<dyn std::error::Error>> {
     let mut response = reqwest::get(url.as_ref()).await?;
     let start_time = Instant::now();
-    let file_name = url.path_segments().and_then(|segments| segments.last()).unwrap_or("file.bin");
+    let file_name = url
+        .path_segments()
+        .and_then(|segments| segments.last())
+        .unwrap_or("file.bin");
     let mut file = tokio::fs::File::create(file_name).await?;
     let mut downloaded_size = 0;
     while let Some(chunk) = response.chunk().await? {
@@ -38,7 +41,6 @@ pub async fn download_file(url: &Url) -> Result<(), Box<dyn std::error::Error>> 
     );
     Ok(())
 }
-
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
