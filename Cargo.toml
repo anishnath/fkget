@@ -11,3 +11,6 @@ license = "MIT"
 reqwest = { version = "0.11", features = ["blocking"] }
 tokio = { version = "1.16.1", features = ["full"] }
 url = "2.2.2"
+rusoto_s3 = "0.48.0"
+rusoto_core = "0.48.0"
+colored = "2.0.0"
