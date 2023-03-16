@@ -1,12 +1,11 @@
 use std::env;
-use url::Url;
 use fkget::fk_get;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let url = match env::args().nth(1) {
-        Some(url_str) => Url::parse(&url_str)?,
-        None => Url::parse("https://speed.hetzner.de/100MB.bin")?,
+        Some(url_str) => url_str,
+        None => "https://speed.hetzner.de/100MB.bin".to_string(),
     };
     fk_get::download_file(&url).await?;
     Ok(())
@@ -14,10 +13,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 #[cfg(test)]
 mod tests {
+    use std::fs::File;
     use super::*;
     #[tokio::test]
     async fn test_download_file() {
-        let url = Url::parse("https://speed.hetzner.de/100MB.bin").unwrap();
+        let url = "https://speed.hetzner.de/100MB.bin".to_string();
         fk_get::download_file(&url).await.unwrap();
         let file = File::open("100MB.bin").unwrap();
         let file_size = file.metadata().unwrap().len();

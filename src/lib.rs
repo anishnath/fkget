@@ -9,7 +9,8 @@ pub mod fk_get {
     use std::time::{Duration, Instant};
     use tokio::io::{AsyncWriteExt};
 
-    pub async fn download_file(url: &Url) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn download_file(url: &str) -> Result<(), Box<dyn std::error::Error>> {
+        let url = Url::parse(url)?;
         let mut response = reqwest::get(url.as_ref()).await?;
         let start_time = Instant::now();
         let file_name = url
