@@ -63,7 +63,7 @@ pub mod fk_get {
         let secs = d.as_secs();
         let mins = secs / 60;
         let secs = secs % 60;
-        let hours = mins / 60;
+        let _hours = mins / 60;
         let mins = mins % 60;
         // if hours > 0 {
         //     format!("{}h{}m{}s", hours, mins, secs)
