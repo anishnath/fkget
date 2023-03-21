@@ -32,7 +32,7 @@ pub mod fk_get {
                 })
                 .await?;
 
-            let body = object.body.take().expect("The object has no body");
+            let body = object.body.take().expect("The object has no body?");
 
             let mut body = body.into_async_read();
 
